@@ -31,12 +31,13 @@ class BotCard extends LitElement {
   static properties = { bot: { attribute: false }, everyone: { state: true } };
   static styles = [base, css`
     header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .title { min-width: 0; flex: 1; }
     .face { position: relative; width: 44px; height: 44px; flex: none; }
     .face img, .face .initial { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; object-fit: cover; background: var(--chip); color: var(--muted); font: 700 18px var(--font-display); }
     .face .dot { position: absolute; right: -1px; bottom: -1px; width: 12px; height: 12px; border: 2px solid var(--surface); }
-    h2 { margin: 0; font: 700 20px/1.1 var(--font-display); }
-    .handle { font-family: var(--font-data); font-size: 13px; color: var(--muted); }
-    .chip { margin-left: auto; font: 500 11px var(--font-data); text-transform: uppercase; letter-spacing: .06em; background: var(--chip); color: var(--muted); border-radius: 6px; padding: 2px 8px; }
+    h2 { margin: 0; font: 700 20px/1.1 var(--font-display); overflow-wrap: anywhere; }
+    .handle { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-data); font-size: 13px; color: var(--muted); }
+    .chip { flex: none; margin-left: auto; font: 500 11px var(--font-data); text-transform: uppercase; letter-spacing: .06em; background: var(--chip); color: var(--muted); border-radius: 6px; padding: 2px 8px; }
     .error { color: var(--bad); margin: 0; font-size: 14px; }
     .figures { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
     .figures b { display: block; font: 800 26px/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
@@ -52,10 +53,11 @@ class BotCard extends LitElement {
     dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0; font-size: 14px; }
     dt { color: var(--muted); } dd { margin: 0; font-family: var(--font-data); }
     ul { list-style: none; margin: 0; padding: 0; font-size: 14px; }
-    li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; padding: 6px 0; border-top: 1px solid var(--line); align-items: baseline; }
+    li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "name count when" "user user user"; gap: 0 12px; padding: 6px 0; border-top: 1px solid var(--line); align-items: baseline; }
     li:first-child { border-top: 0; }
-    .who { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .who small { color: var(--muted); font-family: var(--font-data); margin-left: 6px; }
+    .who { grid-area: name; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user { grid-area: user; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font: 12px/1.4 var(--font-data); }
+    .count { grid-area: count; } .when { grid-area: when; }
     .when, .count { font-size: 12px; color: var(--muted); white-space: nowrap; font-family: var(--font-data); }
     button { margin-top: 8px; background: none; border: 0; padding: 0; color: var(--accent); font: 600 13px var(--font-ui); cursor: pointer; }
     button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
@@ -75,7 +77,7 @@ class BotCard extends LitElement {
   bars(perMinute) {
     const max = Math.max(1, ...perMinute);
     const w = 600 / perMinute.length;
-    return html`<svg viewBox="0 0 600 54" preserveAspectRatio="none" role="img" aria-label="Messages per minute, last hour">
+    return html`<svg viewBox="0 0 600 54" preserveAspectRatio="none" role="img" aria-label="Actions per minute, last hour">
       <line x1="0" y1="53.5" x2="600" y2="53.5"></line>
       ${perMinute.map((n, i) => n ? svg`<rect x=${i * w + 1} y=${54 - (n / max) * 52} width=${w - 2} height=${(n / max) * 52} rx="1.5"></rect>` : nothing)}
     </svg>`;
@@ -85,7 +87,7 @@ class BotCard extends LitElement {
     const b = this.bot, s = b.stats;
     const title = s?.name || s?.bot || b.container;
     if (!s) {
-      return html`<article class="card"><header>${this.face(title, null, false)}<h2>${title}</h2><span class="chip">${b.state}</span></header>
+      return html`<article class="card"><header>${this.face(title, null, false)}<div class="title"><h2>${title}</h2></div><span class="chip">${b.state}</span></header>
         <p class="error">${b.error || "No answer"}</p></article>`;
     }
     const pm = s.traffic.per_minute || [];
@@ -93,31 +95,32 @@ class BotCard extends LitElement {
     const people = s.people || [];
     const shown = this.everyone ? people : people.slice(0, PEOPLE_SHOWN);
     return html`<article class="card">
-      <header>${this.face(title, s, true)}<div><h2>${title}</h2><span class="handle">@${s.bot}</span></div><span class="chip">${s.platform}</span></header>
+      <header>${this.face(title, s, true)}<div class="title"><h2>${title}</h2><span class="handle">@${s.bot}</span></div><span class="chip">${s.platform}</span></header>
       <div class="figures">
         <div><b>${num(s.users.total)}</b><span>users</span></div>
         <div><b>${num(s.users.active_24h)}</b><span>active today</span></div>
         <div><b>${num(s.users.active_7d)}</b><span>this week</span></div>
         <div><b>${num(s.users.new_24h)}</b><span>new today</span></div>
       </div>
-      <h3>Traffic, last hour</h3>
+      <h3>Actions, last hour</h3>
       <div class="traffic">
         ${this.bars(pm)}
         <div class="totals">
           <span><b>${num(lastMinute)}</b> last minute</span>
-          <span><b>${num(s.traffic.messages_24h)}</b> in 24 h</span>
+          <span><b>${num(s.traffic.messages_24h)}</b> actions in 24 h</span>
           <span class=${s.traffic.rejected_24h ? "rejected" : ""}><b>${num(s.traffic.rejected_24h)}</b> turned away</span>
         </div>
       </div>
       ${s.extra?.length ? html`<h3>${title}</h3><dl>${s.extra.map((e) => html`<dt>${e.label}</dt><dd>${e.value}</dd>`)}</dl>` : nothing}
       <h3>People</h3>
       ${people.length ? html`<ul>${shown.map((p) => html`<li>
-          <span class="who">${p.name || p.id}${p.username ? html`<small>@${p.username}</small>` : nothing}</span>
-          <span class="count">${num(p.messages)} msg</span>
+          <span class="who">${p.name || p.id}</span>
+          <span class="count">${num(p.messages)} ${p.messages === 1 ? "action" : "actions"}</span>
           <span class="when">${ago(p.last_seen)}</span>
+          ${p.username ? html`<span class="user">@${p.username}</span>` : nothing}
         </li>`)}</ul>
         ${people.length > PEOPLE_SHOWN ? html`<button @click=${() => { this.everyone = !this.everyone; }}>${this.everyone ? "Show fewer" : `Show all ${people.length}`}</button>` : nothing}`
-        : html`<p class="muted">Nobody has written yet.</p>`}
+        : html`<p class="muted">Nobody has used it yet.</p>`}
     </article>`;
   }
 }
@@ -172,7 +175,7 @@ class MuninnApp extends LitElement {
           <span><b>${ok.length}/${bots.length}</b> bots answering</span>
           <span><b>${num(sum((s) => s.users.total))}</b> users</span>
           <span><b>${num(sum((s) => s.users.active_24h))}</b> active today</span>
-          <span><b>${num(sum((s) => s.traffic.messages_24h))}</b> messages in 24 h</span>
+          <span><b>${num(sum((s) => s.traffic.messages_24h))}</b> actions in 24 h</span>
           <span class=${rejected ? "bad" : ""}><b>${num(rejected)}</b> turned away</span>
         </div>
         ${bots.length ? html`<div class="bots">${bots.map((b) => html`<bot-card .bot=${b}></bot-card>`)}</div>`
