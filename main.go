@@ -30,6 +30,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(http.FS(web)))
 	mux.HandleFunc("/healthz", func(rw http.ResponseWriter, r *http.Request) { fmt.Fprintln(rw, "ok") })
+	mux.HandleFunc("/api/avatar/telegram/", newAvatars().serve)
 	mux.HandleFunc("/api/bots", func(rw http.ResponseWriter, r *http.Request) {
 		bots, err := w.bots()
 		if err != nil {
