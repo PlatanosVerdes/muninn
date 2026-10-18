@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>muninn · Bots</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Night-sky ink with one feather-blue accent: the raven that flies out and reports back. */
+  :root {
+    --bg: #f3f4f8; --surface: #ffffff; --ink: #141826; --muted: #5c6378; --line: #dfe2ec; --chip: #edf0f7;
+    --accent: #3d5afe; --ok: #138a4f; --warn: #b46a00; --bad: #c4373d;
+    --font-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
+    --font-ui: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-data: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b0e18; --surface: #141927; --ink: #e8ebf5; --muted: #98a0b8; --line: #242b40; --chip: #1c2335;
+      --accent: #8c9dff; --ok: #3cc47c; --warn: #f0b342; --bad: #ff7b7b; color-scheme: dark;
+    }
+  }
+  html { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--font-ui); }
+</style>
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<muninn-app></muninn-app>
+</body>
+</html>
