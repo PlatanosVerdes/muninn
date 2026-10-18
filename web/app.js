@@ -30,7 +30,10 @@ const base = css`
 class BotCard extends LitElement {
   static properties = { bot: { attribute: false }, everyone: { state: true } };
   static styles = [base, css`
-    header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .face { position: relative; width: 44px; height: 44px; flex: none; }
+    .face img, .face .initial { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; object-fit: cover; background: var(--chip); color: var(--muted); font: 700 18px var(--font-display); }
+    .face .dot { position: absolute; right: -1px; bottom: -1px; width: 12px; height: 12px; border: 2px solid var(--surface); }
     h2 { margin: 0; font: 700 20px/1.1 var(--font-display); }
     .handle { font-family: var(--font-data); font-size: 13px; color: var(--muted); }
     .chip { margin-left: auto; font: 500 11px var(--font-data); text-transform: uppercase; letter-spacing: .06em; background: var(--chip); color: var(--muted); border-radius: 6px; padding: 2px 8px; }
@@ -58,7 +61,16 @@ class BotCard extends LitElement {
     button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
   `];
 
-  constructor() { super(); this.everyone = false; }
+  constructor() { super(); this.everyone = false; this.noPhoto = false; }
+
+  face(title, s, ok) {
+    const photo = s?.platform === "telegram" && s.bot && !this.noPhoto;
+    return html`<div class="face">
+      ${photo ? html`<img src="api/avatar/telegram/${s.bot}" alt="" @error=${() => { this.noPhoto = true; this.requestUpdate(); }}>`
+        : html`<span class="initial">${(title || "?")[0].toUpperCase()}</span>`}
+      <i class="dot ${ok ? "ok" : "bad"}"></i>
+    </div>`;
+  }
 
   bars(perMinute) {
     const max = Math.max(1, ...perMinute);
@@ -73,7 +85,7 @@ class BotCard extends LitElement {
     const b = this.bot, s = b.stats;
     const title = s?.name || s?.bot || b.container;
     if (!s) {
-      return html`<article class="card"><header><i class="dot bad"></i><h2>${title}</h2><span class="chip">${b.state}</span></header>
+      return html`<article class="card"><header>${this.face(title, null, false)}<h2>${title}</h2><span class="chip">${b.state}</span></header>
         <p class="error">${b.error || "No answer"}</p></article>`;
     }
     const pm = s.traffic.per_minute || [];
@@ -81,7 +93,7 @@ class BotCard extends LitElement {
     const people = s.people || [];
     const shown = this.everyone ? people : people.slice(0, PEOPLE_SHOWN);
     return html`<article class="card">
-      <header><i class="dot ok"></i><div><h2>${title}</h2><span class="handle">@${s.bot}</span></div><span class="chip">${s.platform}</span></header>
+      <header>${this.face(title, s, true)}<div><h2>${title}</h2><span class="handle">@${s.bot}</span></div><span class="chip">${s.platform}</span></header>
       <div class="figures">
         <div><b>${num(s.users.total)}</b><span>users</span></div>
         <div><b>${num(s.users.active_24h)}</b><span>active today</span></div>
@@ -152,7 +164,7 @@ class MuninnApp extends LitElement {
       <div class="top">
         <img src="icon.svg" alt="">
         <h1>muninn</h1>
-        <span class="where">${this.data?.name ? `${this.data.name} · ` : ""}what the bots saw</span>
+        ${this.data?.name ? html`<span class="where">${this.data.name}</span>` : nothing}
         ${this.data ? html`<span class="version">${this.data.version}</span>` : nothing}
       </div>
       ${this.error ? html`<p class="error">Cannot read the bots: ${this.error}</p>` : nothing}
