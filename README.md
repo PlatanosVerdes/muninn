@@ -1,4 +1,13 @@
-# muninn
+<p align="center">
+  <img src="web/icon.svg" width="96" alt="">
+</p>
+
+<h1 align="center">muninn</h1>
+
+<p align="center">
+  <a href="https://github.com/PlatanosVerdes/muninn/tags"><img src="https://img.shields.io/github/v/tag/PlatanosVerdes/muninn?label=release&color=2f7d3a" alt="Latest release"></a>
+  <img src="https://img.shields.io/github/go-mod/go-version/PlatanosVerdes/muninn" alt="Go version">
+</p>
 
 A page that watches the bots: who uses each one, how much traffic reaches it, and whether someone is
 trying to flood it. Each bot reports its own figures; muninn finds the bots by a label and only reads.
