@@ -18,11 +18,11 @@ trying to flood it. Each bot reports its own figures; muninn finds the bots by a
  pol bot ─/bot-stats──┘      └──── /metrics ── Prometheus ── Grafana history and alerts
 ```
 
-## Why the name
+## Running it
 
-Odin keeps two ravens, Huginn and Muninn, who fly over the world every day and come back to tell him
-what they saw. Huginn is already the exit check next to [sleipnir](https://github.com/PlatanosVerdes/sleipnir);
-muninn is the other one, and what it brings back is who has been talking to the bots.
+Run the image `ghcr.io/platanosverdes/muninn:<tag>` next to a read-only
+[docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy), on the same network as the
+bots, and keep it behind the tailnet.
 
 ## How a bot shows up
 
@@ -46,26 +46,6 @@ and Go bots get it from `gonana/botstats`. Any bot that serves it shows up, Disc
 muninn reaches it over the Docker network. muninn's own page shows them too: keep it behind the
 tailnet.
 
-## What it shows
-
-Per bot: its profile photo, users (total, active today and this week, new today), actions per minute over the last
-hour, actions and rejected requests over the last day, the bot's own figures, and everyone who
-used it, with how much and when they last did. An action is a written message or a button tap.
-
-A rejected request is one the bot turned away, by its rate limit or as abuse: a climb in those, or
-in actions per minute, is what someone flooding a bot looks like.
-
-A Telegram bot's photo comes from its public `t.me/<bot>` page, cached for 12 hours and served by
-muninn at `/api/avatar/telegram/<bot>`: the Bot API only hands out a photo behind a URL that carries
-the token. A bot without a photo shows its initial.
-
-## Prometheus
-
-`/metrics` has the same figures as gauges, labelled by container, platform and bot, never by person:
-`muninn_bot_up`, `muninn_bot_users`, `muninn_bot_users_active_24h`, `muninn_bot_users_active_7d`,
-`muninn_bot_users_new_24h`, `muninn_bot_messages_last_minute`, `muninn_bot_messages_24h`,
-`muninn_bot_rejected_24h`.
-
 ## Settings
 
 | Variable | Default | |
@@ -74,7 +54,20 @@ the token. A bot without a photo shows its initial.
 | `LISTEN_ADDR` | `:8095` | Page, API and metrics |
 | `MUNINN_NAME` | empty | The machine, shown next to the title |
 
+## Docs
+
+| | |
+| :--- | :--- |
+| [What it shows](docs/page.md) | The figures per bot, what a rejected request is, and where a Telegram photo comes from |
+| [Prometheus](docs/metrics.md) | The `/metrics` gauges |
+
 ## What it does not do
 
 It never talks to a bot platform, holds no token, and sends nothing. Traffic counts live in each bot
 and start over when that bot restarts; the people are kept by the bot on disk.
+
+## Why the name
+
+Odin keeps two ravens, Huginn and Muninn, who fly over the world every day and come back to tell him
+what they saw. Huginn is already the exit check next to [sleipnir](https://github.com/PlatanosVerdes/sleipnir);
+muninn is the other one, and what it brings back is who has been talking to the bots.
